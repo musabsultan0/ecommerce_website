@@ -2,6 +2,7 @@
 "use client";
 
 import {
+  Suspense,
   useEffect,
   useState,
   useCallback,
@@ -23,7 +24,8 @@ type Status = "loading" | "error" | "success";
 // Only these three filters are shown on the home page.
 const CATEGORIES = ["All", "Electronics", "Fashion"];
 
-export default function HomePage() {
+// All existing homepage logic stays inside HomeContent.
+function HomeContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [status, setStatus] = useState<Status>("loading");
   const [category, setCategory] = useState("All");
@@ -58,7 +60,7 @@ export default function HomePage() {
       );
     }
 
-    // New search filter: match beginning of product name
+    // Search filter: match beginning of product name
     if (searchQuery.trim()) {
       const query = searchQuery.trim().toLowerCase();
 
@@ -136,5 +138,20 @@ export default function HomePage() {
         )}
       </section>
     </>
+  );
+}
+
+// Suspense boundary for useSearchParams during production builds.
+export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <Loading />
+        </div>
+      }
+    >
+      <HomeContent />
+    </Suspense>
   );
 }
